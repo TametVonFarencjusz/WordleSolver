@@ -39,7 +39,6 @@ close(f)=#
 
 list = copy(LIST)
 
-
 cont = []
 isnot = []
 isnoton = []
@@ -130,13 +129,32 @@ function findclosestwith(str)
             end
         end
         if !isempty(same)
+            len_ = length(same)
             unique!(same)
-            push!(list2,(length(same),ele))
+            value = 1000 * length(same)
+            #value += 100 * len_
+            #value -= 300 * count(x->in(x,cont), ele)
+            value -= 750 * count(x->in(x,isnot), ele)
+            for tup in isnoton
+                if ele[tup[2]] == tup[1]
+                    value -= 750
+                end
+            end
+            for i in 1:5
+                if ele[i] == solved[i]
+                    value -= 900
+                end
+            end
+            push!(list2, (value,ele))
         end
     end
     sort!(list2, rev=true)
     #println(list2)
-    return isempty(list2) ? "error" : list2[1];
+    return isempty(list2) ? "error" : list2[1:5];
+end
+
+function inon(ele, on, collection)
+
 end
 
 str = ""
