@@ -10,33 +10,45 @@ else
     global LIST = readlines("english.txt")
 end
 
-LIST = filter(a -> length(a) == 5, LIST)
+filter!(a -> length(a) == 5, LIST)
 
-#=counter = 0;
-while !eof(f) 
-    s = readline(f) 
-    try  
-        global counter+=1
-        if length(s) == 5
-            s = lowercase(s)
-            breaker = false;
-            for ele in s
-                if !isletter(ele)#(ele < 'a' || ele > 'z') 
-                    breaker = true;
-                    break
-                end
-            end
-            if (!breaker)
-                push!(LIST,s)
-            end
-        end
-    catch e
-        print("$counter: "); println(s)
+
+tolatin = Dict()
+for line in readlines("tolatin.txt")
+    v, k = split(line)
+    for key in k
+        tolatin[key] = v
     end
 end
-close(f)=#
+
+function convert(word::String)
+    new_word = ""
+    for letter in lowercase(word)
+        new_word *= tolatin[letter]
+    end
+    return new_word
+end
+
+function onlyletters(List)
+    lst = []
+    for ele in List
+        breaker = false
+        for letter in ele
+            if !isletter(letter)
+                breaker = true;
+            end
+        end
+        if !breaker
+            push!(lst, ele)
+        end
+    end
+    return lst
+end
 
 
+LIST = onlyletters(LIST)
+LIST = [convert(x) for x in LIST]
+unique!(LIST)
 list = copy(LIST)
 
 cont = []
@@ -149,7 +161,6 @@ function findclosestwith(str)
         end
     end
     sort!(list2, rev=true)
-    #println(list2)
     return isempty(list2) ? "error" : list2[1:5];
 end
 
