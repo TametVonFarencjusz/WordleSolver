@@ -1,5 +1,6 @@
 using StatsBase
 
+#Choosing a language and loading vocabulary
 println("Choose your language (\"fr\",\"ger\",\"eng\"): ")
 lang = readline(stdin)
 if in(lang, ["fr","french"])
@@ -10,9 +11,10 @@ else
     global LIST = readlines("english.txt")
 end
 
+#filtering of 5 letters words
 filter!(a -> length(a) == 5, LIST)
 
-
+#creating a dict translating non latin letters to latin
 tolatin = Dict()
 for line in readlines("tolatin.txt")
     v, k = split(line)
@@ -21,6 +23,7 @@ for line in readlines("tolatin.txt")
     end
 end
 
+#function - converts letters to lowercase and to latin
 function convert(word::String)
     new_word = ""
     for letter in lowercase(word)
@@ -29,6 +32,7 @@ function convert(word::String)
     return new_word
 end
 
+#function - filters words with non letter signs
 function onlyletters(List)
     lst = []
     for ele in List
@@ -51,6 +55,11 @@ LIST = [convert(x) for x in LIST]
 unique!(LIST)
 list = copy(LIST)
 
+#count letters dict
+countdict = countmap(collect(join(LIST)))
+println(countdict)
+
+#starting values
 cont = []
 isnot = []
 isnoton = []
@@ -161,27 +170,64 @@ function findclosestwith(str)
         end
     end
     sort!(list2, rev=true)
-    return isempty(list2) ? "error" : list2[1:5];
+    return isempty(list2) ? "error" : list2[1:10];
 end
 
-function inon(ele, on, collection)
 
+
+function find4()
+    bestlist = copy(LIST)
+    #=
+    println(length(filter(x -> x[1] == 'q', bestlist)))
+    println(length(filter(x -> x[2] == 'q', bestlist)))
+    println(length(filter(x -> x[3] == 'q', bestlist)))
+    println(length(filter(x -> x[4] == 'q', bestlist)))
+    println(length(filter(x -> x[5] == 'q', bestlist)))
+    =#
+    filter!(x -> !contains(x, r"[w,v,z,x,j,q]"), bestlist)
+    println(length(bestlist))
+    #println(bestlist)
+    filter!(x -> length(unique(x)) == 5, bestlist)
+    println(length(bestlist))
+    #bestlist = [ele for ele in map(prod, collect(Base.product(bestlist, bestlist)))]
+    bestlist = [ele*ele2 for ele in bestlist for ele2 in bestlist]
+    filter!(x -> length(unique(x)) == 10, bestlist)
+    println(length(bestlist))
+
+    bnflist = filter(x -> contains(x,"b") && !contains(x,"f"), bestlist)
+    fnblist = filter(x -> contains(x,"f") && !contains(x,"n"), bestlist)
+
+    for eleb in bnflist, elef in fnblist
+        if length(unique(eleb*elef)) == 20
+            println(eleb*elef)
+        end
+    end
+end
+
+function histogram(letter::Char)
+    println(length(filter(x -> x[1] == letter, LIST)))
+    println(length(filter(x -> x[2] == letter, LIST)))
+    println(length(filter(x -> x[3] == letter, LIST)))
+    println(length(filter(x -> x[4] == letter, LIST)))
+    println(length(filter(x -> x[5] == letter, LIST)))
 end
 
 str = ""
 while str != "exit"
     global str = ""
+
     while str != "next" && str != "exit"
         global str = readline(stdin)
-        if str != "next" && str != "exit"
+        if str[1:4] == "hist" && length(str) >= 6
+            histogram(str[6])
+        elseif str != "next" && str != "exit"
             addtoarray(str)
             printarrays()
         end
     end
+
     global list = delcon!(list)
     countchar(list)
     println(length(list))
     println(list)
 end
-
-#.\OneDrive\Pulpit\PWR\Code\powerlanguage\
